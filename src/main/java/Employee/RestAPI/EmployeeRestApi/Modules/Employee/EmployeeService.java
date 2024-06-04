@@ -7,6 +7,7 @@ import Employee.RestAPI.EmployeeRestApi.Modules.Employee.Entity.EmployeeEntity;
 import Employee.RestAPI.EmployeeRestApi.Modules.Employee.Repository.EmployeeRepository;
 import Employee.RestAPI.EmployeeRestApi.Utils.PaginationUtil;
 import jakarta.persistence.criteria.Predicate;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -15,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,8 +31,7 @@ public class EmployeeService {
     //Create(Post)
     public EmployeeEntity createEmployee(EmployeeDTO request){
         boolean existByEmployeeName = employeeRespository.existsByPersonalName(request.getPersonalName());
-        boolean existByEmployeeNumber = employeeRespository.existsByPersonalNumber(request.getPersonalNumber());
-        if (existByEmployeeName || existByEmployeeNumber){
+        if (existByEmployeeName){
             throw new CustomRequestException("Employee name/number already exist, double check again",HttpStatus.CONFLICT);
         }
         EmployeeEntity data = new EmployeeEntity();
@@ -60,8 +61,28 @@ public class EmployeeService {
         return new PaginationUtil<>(pagedResult, EmployeeEntity.class);
     }
 
-    //Update(Put)
+    //Getting by ID
+    public EmployeeEntity getEmployeeById(Long id_employee) {
+        EmployeeEntity result = employeeRespository.findById(id_employee).orElse(null);
+        if (result == null){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"ID" + id_employee + " not found");
+        }
+        return result;
+    }
 
-    //Delete(Delete)
-
+    //Update by Id
+    @Transactional
+    public EmployeeEntity updateEmployee(Long id_employee, EmployeeDTO request) {
+        EmployeeEntity employee = employeeRespository.findById(id_employee)
+                .orElseThrow(()-> new ResponseStatusException(HttpStatus.CONFLICT, "Employee does not exists"));
+        employee.setPersonalNumber(request.getPersonalNumber());
+        employee.setPersonalName(request.getPersonalName());
+        return employeeRespository.save(employee);
+    }
+    @Transactional
+    public void deleteEmployee(Long id_employee){
+        EmployeeEntity findData = employeeRespository.findById(id_employee)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Employee does not exist"));
+        employeeRespository.delete(findData);
+    }
 }

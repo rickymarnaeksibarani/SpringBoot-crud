@@ -7,8 +7,10 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Getter
@@ -17,12 +19,11 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Table(name = "employee")
 public class EmployeeEntity {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "employeeName")
+    @Column(name = "personalName")
     private String personalName;
 
     @Column(name = "personalNumber")

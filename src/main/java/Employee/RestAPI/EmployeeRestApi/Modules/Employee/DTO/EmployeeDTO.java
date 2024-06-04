@@ -7,11 +7,9 @@ import java.time.LocalDateTime;
 
 @Data
 public class EmployeeDTO {
-    @JsonProperty("uuid")
-    private Long uuid;
     @JsonProperty("id")
     private Long id;
-    @JsonProperty("name")
+    @JsonProperty("personalName")
     private String personalName;
     @JsonProperty("personalNumber")
     private String personalNumber;
